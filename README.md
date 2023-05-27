@@ -8,7 +8,7 @@ Our project consists of three popular word-based minigames in one app, using the
 
 1.  __[Hangman](https://en.wikipedia.org/wiki/Hangman_(game))__: a guessing game where the player tries to guess a hidden word by suggesting letters. Each incorrect guess leads to the gradual drawing of a hangman's gallows. Players win by guessing the word before the complete hangman figure is drawn, providing an engaging test of vocabulary and deduction skills.
 2. __[Wordle](https://www.nytimes.com/games/wordle/index.html)__: a minigame where the player attempts to guess a five-letter word within six attempts. After each guess, the game provides feedback on correct letters and their positions. It challenges players' word-guessing skills and deductive reasoning, making it a fun and addictive word puzzle.
-3. __[Scrabble](https://dexonline.ro/omleta)__ : a minigame that can be played in two modes: given a word whose letters are shuffled, the player has to figure it out or for a given prefix the player has to find how many correct words possible.
+3. __[Scrabble](https://dexonline.ro/omleta)__ : a minigame that can be played in two modes: given a word whose letters are shuffled, the player has to figure it out or for a given prefix the player has to find as many correct words as possible.
 
 ## **Interface**
 
