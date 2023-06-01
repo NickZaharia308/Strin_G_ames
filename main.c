@@ -22,28 +22,19 @@ void print_logo()
 void select_minigame()
 {
     char command[MAX_STRING_SIZE];
+    print_logo();
+    printf("Hello there! Please select the minigame: WORDLE / HANGMAN / SCRABBLE:\n\n");
+    fgets(command, MAX_STRING_SIZE, stdin);
+	if (strncmp(command, "WORDLE", 6) == 0) {
+	    initialise_wordle();
+	} else if (strncmp(command, "HANGMAN", 7) == 0) {
+	    hangman_intro();
+	} else if (strncmp(command, "SCRABBLE", 8) == 0) {
+	    initialise_scrabble();
+	} else if (strncmp(command, "EXIT", 4) == 0) {
+	    exit(0);
+	}
 
-    while (1) {
-
-        system("clear");
-
-        print_logo();
-        printf("Hello there! Please select the minigame: WORDLE / HANGMAN / SCRABBLE:\n\n");
-
-        fgets(command, MAX_STRING_SIZE, stdin);
-
-        if (strncmp(command, "WORDLE", 6) == 0) {
-            initialise_wordle();
-        } else if (strncmp(command, "HANGMAN", 7) == 0) {
-            hangman_intro();
-        } else if (strncmp(command, "SCRABBLE", 8) == 0) {
-            initialise_scrabble();
-        } else if (strncmp(command, "EXIT", 4) == 0) {
-            exit(0);
-        } else {
-            continue;
-        }
-    }
 }
 
 int main()

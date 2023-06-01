@@ -10,14 +10,14 @@
 #define MIN 1
 #define INT_LEN 3
 #define NO_OF_TRIES 6
-#define ALPHABET "abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVXYZ"
+#define ALPHABET "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
 /**
  * Function that prints the rules of the game.
  * 'n' is the number of letters of the random word.
 */
-void rules(int n)
+void rules_wordle(int n)
 {
 	printf("Welcome to the \"WORDLE\" game!\n");
 
@@ -151,7 +151,7 @@ void tries(char word[MAX_LEN], char **word_matrix, int no_of_lines) {
 	free(input);
 }
 
-void initialise_game()
+void initialise_wordle()
 {
 	char word[MAX_LEN], filename[MAX_LEN], first_word[MAX_LEN], **word_matrix;
 	int no_of_lines, no_of_chars, offset, random_index, i;
@@ -202,7 +202,7 @@ void initialise_game()
 		fscanf(f_in, "%s", word_matrix[i]);
 		
 	// Show the rules and enter the game
-	rules(no_of_chars);
+	rules_wordle(no_of_chars);
 	tries(word, word_matrix, no_of_lines);
 
 	// Freeing matrix memory and closing file

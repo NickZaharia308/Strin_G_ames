@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <errno.h>
+#include <ctype.h>
+#include "functions.h"
+
 
 #define DIE(assertion, call_description)				\
 	do {								\
@@ -15,30 +18,23 @@
 	} while (0)
 
 
-
+#define ALPHABET_SIZE 26
 #define MAX_STRING_SIZE 50
 #define MAX_TRIES 6
+#define IMPOSSIBLE -1
 
-int from_char_to_int(char *s)
+
+int populate(char letter, char *word, char *guess, int* guessed_letters)
 {
-    int len = strlen(s), num = 0;
-
-    for (int i = 0 ; i < len; i++)
-        num = num * 10 + (s[i] - '0');
-
-    return num;
-}
-
-int populate(char letter, char *word, char *guess, int* guessed_words)
-{
-    int pos;
+    int pos; 
     char *p = strchr(word, letter);
 
     if (!p)
         return 1;
 
     while (p) {
-        *guessed_words = *guessed_words + 1;
+        // replace in guess each presence of the letter
+        *guessed_letters = *guessed_letters + 1;
         pos = p - word;
         guess[pos] = letter;
         p = strchr(p + 1, letter);
@@ -49,7 +45,8 @@ int populate(char letter, char *word, char *guess, int* guessed_words)
 
 void print_hangman(int tries)
 {
-        
+    // the hardcoding of our hangman:)
+
     printf(" _______\n");
     printf("|/");
     if (tries > 0)
@@ -79,10 +76,9 @@ void print_hangman(int tries)
 
     printf("\n");
 
-
     printf("|       \n");
     printf("|___\n");
-    printf("\n\n");
+    printf("\n");
     
     if (tries > 4)
         printf("YOU LOST\n");
@@ -91,77 +87,86 @@ void print_hangman(int tries)
 
 void start_hangman(char *word)
 {   
-    //scap de \n
+    // remove the \n that i got from fgets
     word[strlen(word) - 1] = 0;
 
     int letters =  strlen(word), tries = 0, signal, guess_no = 0;
     char let, trash, first, last;
 
-    //init guess
-    char *guess = calloc(letters, 1);
+    //allocate guess
+    char *guess = calloc(letters + 1, 1);
     DIE(!guess, "Calloc failed");
-    memset(guess, 95, letters - 1); //initializez cu _
+
+    //init guess with '_'
+    memset(guess, 95, letters - 1);
     guess[letters] = 0;
 
+    //the first/last letter of the word are the initial hints
     first = word[0];
     last = word[letters - 1];
 
-
+    // replace '_' with the appropriate letter
     populate(first, word, guess, &guess_no);
     if (first != last)
         populate(last, word, guess, &guess_no);
 
     //init alphabet
-    char alphabet[26];
-    for (int i = 0; i < 26; i++) {
+    char alphabet[ALPHABET_SIZE];
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
         alphabet[i] = 'a' + i;
     }
 
-    alphabet[first - 'a'] = 2;
-    alphabet[last - 'a'] = 2;
-   
+    // they have already been used
+    alphabet[first - 'a'] = IMPOSSIBLE;
+    alphabet[last - 'a'] = IMPOSSIBLE;
 
-    system("clear");
 
-    while (tries < 6) {
+    while (tries < MAX_TRIES) {
 
+        //bash command to clear the terminal screen
         system("clear");
 
-       // printf("\n\nguess: %d\n", guess_no); 
+        //print the hangman, depending on the number of mistakes
         print_hangman(tries);
 
-        if (tries == 5)
+        if (tries == MAX_TRIES - 1) {
+            printf("\nThe word: %s\n\n", word);
             break;
+        }
+            
 
-        printf("\nWORD: %s\n", word);
-        for (size_t i = 0; i < strlen(guess); i++)
+        // print the current guess
+        for (int i = 0; i < letters; i++)
             printf("%c ", guess[i]);
-
+        
+        // if the guess is correct
         if (guess_no == letters) {
-            printf("\n\nCONGRATS!\n");
+            printf("\n\nCONGRATS!\n\n");
             break;
         }     
 
+        //print the available letters
         printf("\n\nAVAILABLE LETTERS: \n\n");
-        for (int i = 0; i < 26; i++) {
-            if (alphabet[i] != 2) {
+        for (int i = 0; i < ALPHABET_SIZE; i++) {
+            if (alphabet[i] != IMPOSSIBLE) {
                 printf("%c ", alphabet[i]);
             } else 
                 printf("* ");
         }
         printf("\n\n");
 
-        
-            printf("\n\nINSERT A NEW LETTER: ");
-            scanf("%c%c", &trash, &let);
-            printf("LET: %c\n", let);
-            printf("\n\n");
+        // read a new letter
+        printf("INSERT A NEW LETTER: ");
+        scanf("%c%c", &trash, &let);
+        printf("\n\n");
 
-            if (alphabet[let - 'a'] == 2)
-                continue;
+        // if the read character is not valid
+        if (!isalpha(let) || alphabet[let - 'a'] == IMPOSSIBLE)
+            continue;
 
-        alphabet[let - 'a'] = 2;
+        alphabet[let - 'a'] = IMPOSSIBLE;
         
+        // replace '_' with the corressponding letter
         signal = populate(let, word, guess, &guess_no);
 
         if (signal)
@@ -172,85 +177,67 @@ void start_hangman(char *word)
    free(guess);
 }
 
-
-
-void intro()
+void hangman_intro()
 {
-    char difficulty[MAX_STRING_SIZE];
-    int dif, x, y;
+    char difficulty[MAX_STRING_SIZE], filename[MAX_STRING_SIZE];
 
     printf("\nWelcome to Hangman!\n\n");
-    printf("Please set the difficulty level: 1 / 2 / 3 :\n\n");
+    printf("Please set the difficulty level: EASY / MEDIUM / HARD :\n\n");
 
+    //I choose the file to be opened, depending on the difficulty
 
     while (1) {
         scanf("%s", difficulty);
-        printf("\n");
 
-        dif = from_char_to_int(difficulty);
-        if (dif < 1 || dif > 3) {
+        if (strncmp(difficulty, "EASY", 4) == 0) {
+            strcpy(filename, "words/easy.txt");
+            break;
+        } else if (strncmp(difficulty, "MEDIUM", 6) == 0) {
+            strcpy(filename, "words/medium.txt");
+            break;
+        } else if (strncmp(difficulty, "HARD", 4) == 0) {
+            strcpy(filename, "words/hard.txt");
+            break;
+        } else {
+            printf("\n");
             printf("Please insert a valid level\n");
-        } else 
-            break;
-    }
-
-    // if (dif == 1) {
-    //     x = 3;
-    //     y = 5;
-    // } else if (dif == 2) {
-    //     x = 6;
-    //     y = 8;
-    // } else {
-    //     x = 9;
-    //     y = 11;
-    // }
-
-   // printf("%d %d\n", x, y);
-
-
-    FILE *file = fopen("number_sorted.txt", "r");
-
-    int line_count = 0;
-    char ch;
-    char word[MAX_STRING_SIZE];
-
-    fgets(word, sizeof(word), file);
-    word[strlen(word) - 1] = 0;
-
-    line_count = from_char_to_int(word);
-    
-
-    srand(time(NULL));
-    int random_line_number = rand() % line_count + 1;
-
-
-    //rewind(file);
-    int current_line = 0;
-   
-
-    while (fgets(word, sizeof(word), file) != NULL) {
-        current_line++;
-        if (current_line == random_line_number) {
-            
-            printf("Random Word: %s", word);
-            break;
         }
     }
 
+    FILE *file = fopen(filename, "r");
 
-    //printf("LINE %d\n", random_line_number);
+    int line_count = 0, current_line = 0;
+    char ch;
+    char word[MAX_STRING_SIZE];
+
+
+    line_count = 0;
+
+    //I count the lines of the file in order so that i can get a random one
+
+    while ((ch = fgetc(file)) != EOF) {
+        if (ch == '\n') {
+            line_count++;
+        }
+    }  
+
+    //Get a random line index
+    srand(time(NULL));
+    int random_line_number = rand() % line_count + 1;
+
+    rewind(file);
+
+    //I retrieve the word from the randomized line
+    while (fgets(word, MAX_STRING_SIZE, file) != NULL) {
+
+        current_line++;
+
+        if (current_line == random_line_number)
+            break;
+    }
 
     fclose(file);
 
-   // strcpy(word, "excersise\n");
-
+    //continue with the
     start_hangman(word);
-    
-
-}
-
-int main()
-{
-    intro();
-    return 0;
 }

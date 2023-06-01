@@ -8,7 +8,7 @@
 #define ALPHABET_SIZE 26
 #define MIN 1
 #define INT_LEN 3
-#define ALPHABET "abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVXYZ"
+#define ALPHABET "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 typedef struct trie_node_t trie_node_t;
 struct trie_node_t {
